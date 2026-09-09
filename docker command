@@ -1,0 +1,4 @@
+docker compose -p primary -f docker-compose-primary.yml up -d
+
+
+docker compose -p secondary -f docker-compose-secondary.yml up -d

@@ -1,0 +1,53 @@
+services:
+  auth:
+    image: keycloak/keycloak:26.7.3
+    restart: on-failure
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import
+    networks:
+      - network
+  db:
+    image: postgres
+    restart: on-failure
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: fullstackauthentication
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - network
+  backend:
+    restart: on-failure
+    build: ./backend
+    networks:
+      - network
+  web:
+    restart: on-failure
+    build: 
+      context: web
+    networks:
+      - network
+  nginx:
+    build: 
+     context: nginx
+    restart: unless-stopped
+    ports:
+      - "8001:80"
+    networks:
+      - network
+  
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:
+networks:
+  network : 

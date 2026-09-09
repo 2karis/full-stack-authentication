@@ -1,0 +1,82 @@
+{
+  "realm": "fullstackauthentication",
+  "displayName": "Full Stack Authentication",
+  "enabled": true,
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "user",
+        "description": "Basic user, can read content"
+      },
+      {
+        "name": "admin",
+        "description": "Administrator, can create, update and delete content"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "api",
+      "name": "api",
+      "description": "Spring Boot API - resource server",
+      "enabled": true,
+      "bearerOnly": true,
+      "standardFlowEnabled": false,
+      "serviceAccountsEnabled": false
+    },
+    {
+      "clientId": "frontend",
+      "name": "frontend",
+      "description": "Public client for browser/mobile clients (Expo, web)",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": [
+        "http://localhost:8081/*",
+        "http://localhost:8001/*",
+        "http://localhost:4200/*",
+        "http://localhost:19006/*",
+        "exp://localhost:19000"
+      ],
+      "webOrigins": ["*"],
+      "protocol": "openid-connect"
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "email": "admin@example.com",
+      "firstName": "Admin",
+      "lastName": "User",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["user", "admin"]
+    },
+    {
+      "username": "user",
+      "email": "user@example.com",
+      "firstName": "Normal",
+      "lastName": "User",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["user"]
+    }
+  ]
+}
