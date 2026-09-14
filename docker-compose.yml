@@ -1,11 +1,12 @@
 services:
   auth:
-    image: keycloak/keycloak:26.7.3
+    build: ./auth
     restart: on-failure
     command: ["start-dev", "--import-realm"]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HTTP_HOST: 0.0.0.0
     ports:
       - "8080:8080"
     volumes:
@@ -13,35 +14,43 @@ services:
     networks:
       - network
   db:
-    image: postgres
+    image: postgres:18
     restart: on-failure
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: fullstackauthentication
-    ports:
-      - "5432:5432"
+
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     networks:
       - network
-  backend:
+  api:
     restart: on-failure
-    build: ./backend
+    build: ./api
+    environment:
+      KEYCLOAK_JWK_SET_URI: http://auth:8080/realms/fullstackauthentication/protocol/openid-connect/certs
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: fullstackauthentication
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    depends_on:
+      - auth
+      - db
     networks:
       - network
-  web:
-    restart: on-failure
-    build: 
-      context: web
-    networks:
-      - network
-  nginx:
-    build: 
-     context: nginx
+  proxy:
+    build:
+      context: ./caddy
     restart: unless-stopped
     ports:
       - "8001:80"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
     networks:
       - network
   
