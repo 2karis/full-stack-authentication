@@ -33,11 +33,12 @@
     "typescript": "~6.0.3"
   },
   "scripts": {
-    "start": "expo start",
+    "start": "node ./scripts/write-env.mjs && expo start",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
-    "web": "expo start --web",
+    "android": "node ./scripts/write-env.mjs && expo run:android",
+    "ios": "node ./scripts/write-env.mjs && expo run:ios",
+    "ios:device": "node ./scripts/write-env.mjs && expo run:ios --device 00008150-0006312E3438C01C",
+    "web": "node ./scripts/write-env.mjs && expo start --web",
     "lint": "expo lint"
   },
   "private": true

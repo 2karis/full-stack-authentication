@@ -9,7 +9,13 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.anonymous.mobile"
+      "bundleIdentifier": "com.anonymous.mobile",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "allowsArbitraryLoads": true,
+          "allowsLocalNetworking": true
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {

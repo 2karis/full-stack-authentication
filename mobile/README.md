@@ -25,6 +25,22 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
+## Run on a physical iPhone
+
+With the iPhone connected over USB, Developer Mode enabled, and the phone **unlocked**:
+
+```bash
+npm run ios:device
+```
+
+This runs `expo run:ios --device` against a specific device UDID (defined in `package.json`), builds and installs the app, and launches it with the Metro bundler running. Notes:
+
+- The phone must be unlocked during install and launch, otherwise Xcode reports it as offline and the launch fails.
+- Always launch through `expo run:ios` — launching the app by tapping its icon fails with "No script URL provided", because the Metro URL is only injected on launch.
+- On first launch, trust the developer: Settings → General → VPN & Device Management → your Apple ID → Trust.
+- The phone cannot reach `localhost` on the Mac, so every run script (`npm run ios:device`, `npm start`, …) first runs `scripts/write-env.mjs`, which writes `.env.local` pointing `EXPO_PUBLIC_API_URL` and `EXPO_PUBLIC_KEYCLOAK_URL` at the Mac's current LAN IP. The file regenerates on every run, so a router IP change is picked up automatically.
+- If you switch to a different iPhone, update the UDID in the `ios:device` script (find it with `xcrun xctrace list devices`).
+
 ## Get a fresh project
 
 When you're ready, run:

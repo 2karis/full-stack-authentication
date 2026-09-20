@@ -37,14 +37,30 @@ type TokenResponse = {
   refresh_token: string;
 };
 
+/** Keycloak error body: {"error": "invalid_grant", "error_description": "..."} */
+type KeycloakError = { error?: string; error_description?: string };
+
 async function requestToken(body: URLSearchParams): Promise<TokenResponse> {
-  const response = await fetch(TOKEN_ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body,
-  });
+  let response: Response;
+  try {
+    response = await fetch(TOKEN_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body,
+    });
+  } catch {
+    throw new Error(
+      `Could not reach the sign-in server at ${TOKEN_ENDPOINT}. ` +
+        'On a physical device this usually means the URL still points at ' +
+        'localhost instead of the Mac running Keycloak.',
+    );
+  }
   if (!response.ok) {
-    throw new Error(`Token request failed with status ${response.status}`);
+    const kcError = (await response.json().catch(() => ({}))) as KeycloakError;
+    throw new Error(
+      kcError.error_description ??
+        `Sign-in failed (HTTP ${response.status}: ${kcError.error ?? response.statusText})`,
+    );
   }
   return (await response.json()) as TokenResponse;
 }
@@ -127,19 +143,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(
     async (name: string, password: string) => {
-      try {
-        const tokens = await requestToken(
-          new URLSearchParams({
-            grant_type: 'password',
-            client_id: CLIENT_ID,
-            username: name,
-            password,
-          }),
-        );
-        await applyTokens(tokens);
-      } catch {
-        throw new Error('Invalid username or password');
-      }
+      // Let requestToken's specific error (network unreachable, account
+      // disabled, expired credentials, ...) propagate to the UI.
+      const tokens = await requestToken(
+        new URLSearchParams({
+          grant_type: 'password',
+          client_id: CLIENT_ID,
+          username: name,
+          password,
+        }),
+      );
+      await applyTokens(tokens);
     },
     [applyTokens],
   );
