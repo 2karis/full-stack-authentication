@@ -1,6 +1,14 @@
 server:
   port: 7000
 
+# Keycloak connection used by the password-change proxy (services run inside
+# docker-compose, where "auth" is the Keycloak container hostname).
+keycloak:
+  base-url: ${KEYCLOAK_BASE_URL:http://localhost:8080}
+  realm: ${KEYCLOAK_REALM:fullstackauthentication}
+  admin-client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:api-admin}
+  admin-client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:}
+
 spring:
   application:
     name: api

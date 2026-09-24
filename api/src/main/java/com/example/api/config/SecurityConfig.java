@@ -23,6 +23,8 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.POST, "/api/content/**").hasRole("admin")
 						.requestMatchers(HttpMethod.PUT, "/api/content/**").hasRole("admin")
 						.requestMatchers(HttpMethod.DELETE, "/api/content/**").hasRole("admin")
+						// Any signed-in user can change their own password
+						.requestMatchers(HttpMethod.PUT, "/api/users/me/password").hasRole("user")
 						.anyRequest().authenticated())
 				.oauth2ResourceServer(oauth2 -> oauth2
 						.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));

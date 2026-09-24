@@ -14,8 +14,11 @@ import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
 
 import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
+import { useAuth } from '@/context/auth-context';
 
 export default function AppTabs() {
+  const { isAdmin } = useAuth();
+
   return (
     <Tabs>
       <TabSlot style={{ height: '100%' }} />
@@ -24,11 +27,13 @@ export default function AppTabs() {
           <TabTrigger name="home" href="/" asChild>
             <TabButton>Home</TabButton>
           </TabTrigger>
-          <TabTrigger name="explore" href="/explore" asChild>
-            <TabButton>Explore</TabButton>
-          </TabTrigger>
-          <TabTrigger name="content" href="/content" asChild>
-            <TabButton>Content</TabButton>
+          {isAdmin && (
+            <TabTrigger name="new" href="/new" asChild>
+              <TabButton>New Content</TabButton>
+            </TabTrigger>
+          )}
+          <TabTrigger name="profile" href="/profile" asChild>
+            <TabButton>Profile</TabButton>
           </TabTrigger>
         </CustomTabList>
       </TabList>

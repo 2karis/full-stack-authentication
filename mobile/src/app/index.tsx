@@ -1,98 +1,147 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useCallback, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+import { BottomTabInset, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { useAuth } from '@/context/auth-context';
+import { useTheme } from '@/hooks/use-theme';
+import { listContent, type ContentItem } from '@/services/content';
 
 export default function HomeScreen() {
+  const { status, username } = useAuth();
+  const theme = useTheme();
+  const insets = useSafeAreaInsets();
+
+  const [items, setItems] = useState<ContentItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    if (status !== 'signedIn') {
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      setItems(await listContent());
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Loading failed');
+    } finally {
+      setLoading(false);
+    }
+  }, [status]);
+
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load]),
+  );
+
+  if (status !== 'signedIn') {
+    return null;
+  }
+
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
+    <FlatList
+      style={styles.list}
+      contentContainerStyle={[
+        styles.content,
+        { paddingTop: insets.top, paddingBottom: insets.bottom + BottomTabInset + Spacing.three },
+      ]}
+      data={items}
+      keyExtractor={(item) => String(item.id)}
+      renderItem={({ item }) => (
+        <Pressable
+          style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+          onPress={() => router.push({ pathname: '/content/[id]', params: { id: String(item.id) } })}>
+          <ThemedView type="backgroundElement" style={styles.cardBackground}>
+            <ThemedText type="smallBold" style={styles.cardTitle}>
+              {item.title}
+            </ThemedText>
+            {item.description !== '' && (
+              <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
+                {item.description}
+              </ThemedText>
+            )}
+            <ThemedText type="small" themeColor="textSecondary">
+              {new Date(item.updatedAt).toLocaleString()}
+            </ThemedText>
+          </ThemedView>
+        </Pressable>
+      )}
+      ListHeaderComponent={
+        <View style={styles.header}>
+          <View>
+            <ThemedText type="subtitle">Content</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              Signed in as {username}
+            </ThemedText>
+          </View>
+        </View>
+      }
+      ListEmptyComponent={
+        !error && !loading ? (
+          <ThemedText type="small" themeColor="textSecondary" style={styles.empty}>
+            Nothing here yet.
           </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+        ) : null
+      }
+      ListFooterComponent={
+        error ? (
+          <ThemedText type="small" themeColor="danger" style={styles.error}>
+            {error}
+          </ThemedText>
+        ) : null
+      }
+      refreshControl={
+        <RefreshControl refreshing={loading} onRefresh={load} tintColor={theme.textSecondary} />
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  list: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
+  content: {
+    // Vertical column — no flexDirection, so cards stack one per row.
+    paddingHorizontal: Spacing.three,
     alignItems: 'center',
+  },
+  header: {
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: Spacing.three,
     gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
+  },
+  pressed: {
+    opacity: 0.7,
+  },
+  card: {
+    width: '100%',
     maxWidth: MaxContentWidth,
   },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+  cardBackground: {
+    gap: Spacing.one,
+    padding: Spacing.three,
+    borderRadius: Radius.lg,
   },
-  title: {
+  cardTitle: {
+    fontSize: 18,
+  },
+  empty: {
     textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  },
+  error: {
+    textAlign: 'center',
+    paddingVertical: Spacing.two,
   },
 });

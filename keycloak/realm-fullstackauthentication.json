@@ -4,6 +4,24 @@
   "enabled": true,
   "registrationAllowed": true,
   "loginWithEmailAllowed": true,
+  "clientScopes": [
+    {
+      "name": "account",
+      "protocol": "openid-connect",
+      "protocolMappers": [
+        {
+          "name": "account audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "account",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
   "roles": {
     "realm": [
       {
@@ -39,9 +57,26 @@
         "http://localhost:8001/*",
         "http://localhost:4200/*",
         "http://localhost:19006/*",
-        "exp://localhost:19000"
+        "exp://localhost:19000",
+        "mobile://password-updated"
       ],
-      "webOrigins": ["*"],
+      "webOrigins": [
+        "*"
+      ],
+      "defaultClientScopes": [
+        "account"
+      ],
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "api-admin",
+      "name": "api-admin",
+      "description": "Spring Boot API - service account for Keycloak's Admin REST API (password proxy)",
+      "enabled": true,
+      "secret": "af432e297be7755d2d7882db45ceb79cb6ef4b146fbc3151",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
       "protocol": "openid-connect"
     }
   ],
@@ -60,7 +95,22 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["user", "admin"]
+      "realmRoles": [
+        "user",
+        "admin"
+      ],
+      "clientRoles": {
+        "account": [
+          "manage-account",
+          "view-applications",
+          "manage-account-links",
+          "delete-account",
+          "view-groups",
+          "manage-consent",
+          "view-consent",
+          "view-profile"
+        ]
+      }
     },
     {
       "username": "user",
@@ -76,7 +126,32 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["user"]
+      "realmRoles": [
+        "user"
+      ],
+      "clientRoles": {
+        "account": [
+          "manage-account",
+          "view-applications",
+          "manage-account-links",
+          "delete-account",
+          "view-groups",
+          "manage-consent",
+          "view-consent",
+          "view-profile"
+        ]
+      }
+    },
+    {
+      "username": "service-account-api-admin",
+      "enabled": true,
+      "emailVerified": true,
+      "serviceAccountClientId": "api-admin",
+      "clientRoles": {
+        "realm-management": [
+          "manage-users"
+        ]
+      }
     }
   ]
 }

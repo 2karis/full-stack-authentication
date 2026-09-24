@@ -25,7 +25,7 @@ export default function EditContentScreen() {
   if (error) {
     return (
       <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ThemedText type="small" style={{ color: '#d73a49' }}>
+        <ThemedText type="small" themeColor="danger">
           {error}
         </ThemedText>
       </ThemedView>

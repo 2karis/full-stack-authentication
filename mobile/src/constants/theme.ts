@@ -1,6 +1,7 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * Design tokens modeled on shadcn/ui's default zinc palette.
+ * background/foreground, muted surfaces, borders and primary pairs keep
+ * the same roles in light and dark mode. https://ui.shadcn.com
  */
 
 import '@/global.css';
@@ -9,22 +10,53 @@ import { Platform } from 'react-native';
 
 export const Colors = {
   light: {
-    text: '#000000',
+    // zinc-950 foreground on white
+    text: '#09090b',
     background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    // zinc-100 — cards and subtle surfaces
+    backgroundElement: '#f4f4f5',
+    // zinc-900 — primary buttons (pair with onPrimary text)
+    backgroundSelected: '#18181b',
+    // zinc-500
+    textSecondary: '#71717a',
+    // zinc-200 — hairline borders
+    border: '#e4e4e7',
+    // zinc-50 — text on primary buttons
+    onPrimary: '#fafafa',
+    // red-600
+    danger: '#dc2626',
+    // green-600
+    success: '#16a34a',
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    // zinc-50 foreground on zinc-950
+    text: '#fafafa',
+    background: '#09090b',
+    // zinc-800 — cards and subtle surfaces
+    backgroundElement: '#27272a',
+    // zinc-50 — primary buttons invert in dark mode
+    backgroundSelected: '#fafafa',
+    // zinc-400
+    textSecondary: '#a1a1aa',
+    // zinc-800
+    border: '#27272a',
+    // zinc-950 — text on primary buttons
+    onPrimary: '#18181b',
+    // red-500
+    danger: '#ef4444',
+    // green-500
+    success: '#22c55e',
   },
 } as const;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
+
+/** shadcn-style corner radii: cards 12px, inputs/buttons 8px. */
+export const Radius = {
+  sm: 6,
+  md: 8,
+  lg: 12,
+} as const;
 
 export const Fonts = Platform.select({
   ios: {

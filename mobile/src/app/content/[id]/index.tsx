@@ -42,7 +42,7 @@ export default function ContentDetailScreen() {
   if (error) {
     return (
       <ThemedView style={styles.centered}>
-        <ThemedText type="small" style={styles.error}>
+        <ThemedText type="small" themeColor="danger">
           {error}
         </ThemedText>
       </ThemedView>
@@ -98,9 +98,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.four,
-  },
-  error: {
-    color: '#d73a49',
   },
   actions: {
     flexDirection: 'row',

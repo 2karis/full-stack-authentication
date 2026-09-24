@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedTextInput } from '@/components/themed-input';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import type { ContentInput } from '@/services/content';
 
 type ContentFormProps = {
@@ -57,7 +57,7 @@ export function ContentForm({
         />
       </View>
       {error && (
-        <ThemedText type="small" style={styles.error}>
+        <ThemedText type="small" themeColor="danger">
           {error}
         </ThemedText>
       )}
@@ -66,7 +66,7 @@ export function ContentForm({
         disabled={submitting}
         onPress={handleSubmit}>
         <ThemedView type="backgroundSelected" style={styles.buttonBackground}>
-          <ThemedText type="smallBold" style={styles.buttonText}>
+          <ThemedText type="smallBold" style={styles.buttonText} themeColor="onPrimary">
             {submitting ? 'Saving…' : submitLabel}
           </ThemedText>
         </ThemedView>
@@ -84,11 +84,8 @@ const styles = StyleSheet.create({
   fields: {
     gap: Spacing.two,
   },
-  error: {
-    color: '#d73a49',
-  },
   button: {
-    borderRadius: Spacing.three,
+    borderRadius: Radius.md,
   },
   pressed: {
     opacity: 0.7,
@@ -96,7 +93,7 @@ const styles = StyleSheet.create({
   buttonBackground: {
     alignItems: 'center',
     paddingVertical: Spacing.two,
-    borderRadius: Spacing.three,
+    borderRadius: Radius.md,
   },
   buttonText: {
     textAlign: 'center',
